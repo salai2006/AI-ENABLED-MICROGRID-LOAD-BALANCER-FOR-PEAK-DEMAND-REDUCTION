@@ -1,0 +1,52 @@
+# AI Microgrid Load Balancer
+
+import numpy as np
+
+# Example loads (in watts)
+loads = {
+    "critical": 500,     # always ON
+    "medium": 300,
+    "low": 200
+}
+
+MAX_LIMIT = 800  # max allowed power (peak limit)
+
+def get_total_load(loads):
+    return sum(loads.values())
+
+def ai_decision(loads):
+    total = get_total_load(loads)
+    print("Total Load:", total, "W")
+
+    if total > MAX_LIMIT:
+        print("⚠ Peak detected! Applying load balancing...")
+
+        # Turn off low priority load
+        if loads["low"] > 0:
+            loads["low"] = 0
+            print("Low priority load turned OFF")
+
+        total = get_total_load(loads)
+
+        # If still high, reduce medium load
+        if total > MAX_LIMIT:
+            loads["medium"] -= 100
+            print("Reducing medium load")
+
+    else:
+        print("System stable")
+
+    return loads
+
+
+# Simulation loop
+for i in range(5):
+    print("\n--- Cycle", i+1, "---")
+
+    # Simulate changing demand
+    loads["medium"] = np.random.randint(200, 400)
+    loads["low"] = np.random.randint(100, 300)
+
+    loads = ai_decision(loads)
+
+    print("Updated Loads:", loads)
